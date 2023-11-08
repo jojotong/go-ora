@@ -2,9 +2,11 @@ package go_ora
 
 import (
 	"bytes"
+	"database/sql/driver"
 	"errors"
-	"github.com/sijms/go-ora/v2/converters"
 	"go/types"
+
+	"github.com/sijms/go-ora/v2/converters"
 )
 
 type Clob struct {
@@ -640,6 +642,14 @@ func (lob *Lob) copy(srcLocator, dstLocator []byte, srcOffset, dstOffset, length
 		return err
 	}
 	return lob.read()
+}
+
+// Value return json value, implement driver.Valuer interface
+func (val *Clob) Value() (driver.Value, error) {
+	if val == nil {
+		return nil, nil
+	}
+	return val.String, nil
 }
 
 func (val *Clob) Scan(value interface{}) error {
