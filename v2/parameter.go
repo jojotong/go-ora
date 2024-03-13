@@ -146,6 +146,9 @@ func (par *ParameterInfo) load(conn *Connection) error {
 		return err
 	}
 	par.Precision, err = session.GetByte()
+	if err != nil {
+		return err
+	}
 	// precision, err := session.GetInt(1, false, false)
 	// var scale int
 	switch par.DataType {
@@ -178,6 +181,9 @@ func (par *ParameterInfo) load(conn *Connection) error {
 		}
 	default:
 		par.Scale, err = session.GetByte()
+		if err != nil {
+			return err
+		}
 		// scale, err = session.GetInt(1, false, false)
 	}
 	// if par.Scale == uint8(-127) {
@@ -227,6 +233,9 @@ func (par *ParameterInfo) load(conn *Connection) error {
 		return err
 	}
 	par.ToID, err = session.GetDlc()
+	if err != nil {
+		return err
+	}
 	par.Version, err = session.GetInt(2, true, true)
 	if err != nil {
 		return err
@@ -245,6 +254,9 @@ func (par *ParameterInfo) load(conn *Connection) error {
 	}
 	if session.TTCVersion >= 8 {
 		par.oaccollid, err = session.GetInt(4, true, true)
+		if err != nil {
+			return err
+		}
 	}
 	num1, err := session.GetInt(1, false, false)
 	if err != nil {
@@ -261,6 +273,9 @@ func (par *ParameterInfo) load(conn *Connection) error {
 	}
 	par.Name = session.StrConv.Decode(bName)
 	_, err = session.GetDlc()
+	if err != nil {
+		return err
+	}
 	bName, err = session.GetDlc()
 	if err != nil {
 		return err
@@ -282,10 +297,16 @@ func (par *ParameterInfo) load(conn *Connection) error {
 		return nil
 	}
 	_, err = session.GetInt(2, true, true)
+	if err != nil {
+		return err
+	}
 	if session.TTCVersion < 6 {
 		return nil
 	}
 	_, err = session.GetInt(4, true, true)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -989,6 +1010,9 @@ func (par *ParameterInfo) decodePrimValue(conn *Connection, udt bool) error {
 			} else {
 				par.oPrimValue, err = strconv.ParseInt(tempFloat, 10, 64)
 			}
+			if err != nil {
+				return err
+			}
 		} else if par.Scale == 0 && par.Precision <= 18 {
 			par.oPrimValue, err = converters.NumberToInt64(par.BValue)
 			if err != nil {
@@ -1014,6 +1038,9 @@ func (par *ParameterInfo) decodePrimValue(conn *Connection, udt bool) error {
 				par.oPrimValue, err = strconv.ParseFloat(tempFloat, 64)
 			} else {
 				par.oPrimValue, err = strconv.ParseInt(tempFloat, 10, 64)
+			}
+			if err != nil {
+				return err
 			}
 		} else {
 			par.oPrimValue = converters.DecodeNumber(par.BValue)
@@ -1290,6 +1317,9 @@ func (par *ParameterInfo) decodeColumnValue(connection *Connection, udt bool) er
 				}
 			}
 			par.BValue, err = session.GetClr()
+			if err != nil {
+				return err
+			}
 			if par.DataType == OCIClobLocator {
 				strConv, err := connection.getStrConv(par.CharsetID)
 				if err != nil {

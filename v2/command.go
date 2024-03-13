@@ -8,11 +8,12 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"github.com/sijms/go-ora/v2/network"
 	"reflect"
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/sijms/go-ora/v2/network"
 )
 
 type StmtType int
@@ -630,7 +631,6 @@ func (stmt *defaultStmt) _fetch(dataSet *DataSet) error {
 	//
 	//}
 	return stmt.decodePrim(dataSet)
-	return nil
 }
 func (stmt *defaultStmt) queryLobPrefetch(exeOp int, dataSet *DataSet) error {
 	if stmt._noOfRowsToFetch == 25 {
@@ -821,6 +821,9 @@ func (stmt *defaultStmt) read(dataSet *DataSet) error {
 				return err
 			}
 			size, err = session.GetInt(2, true, true)
+			if err != nil {
+				return err
+			}
 			for x := 0; x < size; x++ {
 				_, val, num, err := session.GetKeyVal()
 				if err != nil {
@@ -904,6 +907,9 @@ func (stmt *defaultStmt) read(dataSet *DataSet) error {
 			}
 			if dataSet.columnCount > 0 {
 				_, err = session.GetByte() // session.GetInt(1, false, false)
+				if err != nil {
+					return err
+				}
 			}
 			dataSet.Cols = make([]ParameterInfo, dataSet.columnCount)
 			for x := 0; x < dataSet.columnCount; x++ {
@@ -923,14 +929,23 @@ func (stmt *defaultStmt) read(dataSet *DataSet) error {
 			_, err = session.GetDlc()
 			if session.TTCVersion >= 3 {
 				_, err = session.GetInt(4, true, true)
+				if err != nil {
+					return err
+				}
 				_, err = session.GetInt(4, true, true)
 			}
 			if session.TTCVersion >= 4 {
 				_, err = session.GetInt(4, true, true)
+				if err != nil {
+					return err
+				}
 				_, err = session.GetInt(4, true, true)
 			}
 			if session.TTCVersion >= 5 {
 				_, err = session.GetDlc()
+			}
+			if err != nil {
+				return err
 			}
 		case 19:
 			session.ResetBuffer()
@@ -2549,6 +2564,9 @@ func (stmt *defaultStmt) decodePrim(dataSet *DataSet) error {
 			case BFile:
 				var tempByte []byte
 				err = setBFile(reflect.ValueOf(&tempByte).Elem(), val)
+				if err != nil {
+					return err
+				}
 				dataSet.rows[rowIndex][colIndex] = tempByte
 			case []ParameterInfo:
 				if col.cusType != nil {

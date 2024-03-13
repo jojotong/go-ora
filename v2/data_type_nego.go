@@ -3,8 +3,9 @@ package go_ora
 import (
 	"errors"
 	"fmt"
-	"github.com/sijms/go-ora/v2/network"
 	"time"
+
+	"github.com/sijms/go-ora/v2/network"
 )
 
 type DataTypeNego struct {
@@ -486,6 +487,9 @@ func (nego *DataTypeNego) read(session *network.Session) error {
 			num, err = session.GetInt(1, false, false)
 		} else {
 			num, err = session.GetInt(2, false, true)
+		}
+		if err != nil {
+			return err
 		}
 		if num == 0 && level == 0 {
 			break

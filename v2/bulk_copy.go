@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+
 	"github.com/sijms/go-ora/v2/network"
 )
 
@@ -251,6 +252,9 @@ func (bulk *BulkCopy) readPrepareResponse() error {
 				bulk.columns = make([]ParameterInfo, length)
 				for x := 0; x < length; x++ {
 					err = bulk.columns[x].load(bulk.conn)
+					if err != nil {
+						return err
+					}
 				}
 			}
 

@@ -73,6 +73,9 @@ func (dataSet *DataSet) load(session *network.Session) error {
 	}
 	dataSet.setBitVector(bitVector)
 	_, err = session.GetDlc()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

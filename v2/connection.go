@@ -820,6 +820,9 @@ func (conn *Connection) getServerNetworkInformation(code uint8) error {
 			return err
 		}
 		conn.transactionID, err = session.GetClr()
+		if err != nil {
+			return err
+		}
 		if len(conn.transactionID) > length {
 			conn.transactionID = conn.transactionID[:length]
 		}
@@ -1074,6 +1077,9 @@ func (conn *Connection) BulkInsert(sqlText string, rowNum int, columns ...[]driv
 	session := conn.session
 	session.ResetBuffer()
 	err := stmt.basicWrite(stmt.getExeOption(), stmt.parse, stmt.define)
+	if err != nil {
+		return nil, err
+	}
 	for x := 0; x < rowNum; x++ {
 		for idx, col := range columns {
 			err = stmt.Pars[idx].encodeValue(col[x], 0, conn)
@@ -1287,6 +1293,9 @@ func (conn *Connection) readResponse(msgCode uint8) error {
 			return err
 		}
 		size, err = session.GetInt(2, true, true)
+		if err != nil {
+			return err
+		}
 		for x := 0; x < size; x++ {
 			_, val, num, err := session.GetKeyVal()
 			if err != nil {

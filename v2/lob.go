@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"database/sql/driver"
 	"errors"
+	"fmt"
 	"go/types"
 
 	"github.com/sijms/go-ora/v2/converters"
@@ -644,14 +645,6 @@ func (lob *Lob) copy(srcLocator, dstLocator []byte, srcOffset, dstOffset, length
 	return lob.read()
 }
 
-// Value return json value, implement driver.Valuer interface
-func (val *Clob) Value() (driver.Value, error) {
-	if val == nil {
-		return nil, nil
-	}
-	return val.String, nil
-}
-
 func (val *Clob) Scan(value interface{}) error {
 	val.Valid = true
 	if value == nil {
@@ -739,27 +732,32 @@ func (val NClob) getLocator() []byte {
 	return val.locator
 }
 
-//func (val Clob) Value() (driver.Value, error) {
-//	if val.Valid {
-//		return val.String, nil
-//	} else {
-//		return nil, nil
-//	}
-//}
+func (val *Clob) Value() (driver.Value, error) {
+	if val == nil {
+		return nil, nil
+	}
+	if !val.Valid {
+		return nil, fmt.Errorf("clob data not valid")
+	}
+	return val.String, nil
+}
 
-//
-//func (val *NClob) Value() (driver.Value, error) {
-//	if val.Valid {
-//		return val.String, nil
-//	} else {
-//		return nil, nil
-//	}
-//}
-//
-//func (val *Blob) Value() (driver.Value, error) {
-//	if val.Valid {
-//		return val.Data, nil
-//	} else {
-//		return nil, nil
-//	}
-//}
+func (val *NClob) Value() (driver.Value, error) {
+	if val == nil {
+		return nil, nil
+	}
+	if !val.Valid {
+		return nil, fmt.Errorf("nclob data not valid")
+	}
+	return val.String, nil
+}
+
+func (val *Blob) Value() (driver.Value, error) {
+	if val == nil {
+		return nil, nil
+	}
+	if !val.Valid {
+		return nil, fmt.Errorf("blob data not valid")
+	}
+	return val.Data, nil
+}
